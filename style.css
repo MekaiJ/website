@@ -35,11 +35,6 @@ nav ul li, aside ul li {
     margin: 5px 0;
 }
 
-.image-section img {
-    max-width: 100%;
-    height: auto;
-}
-
 .headline {
     font-size: 24px;
     font-weight: bold;
