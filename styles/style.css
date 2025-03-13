@@ -1,7 +1,7 @@
 @font-face {
     font-family: 'OpenRunde';
-    src: url('font/OpenRunde-Regular.woff2') format('woff2'),
-         url('font/OpenRunde-Regular.woff') format('woff');
+    src: url('/font/OpenRunde-Regular.woff2') format('woff2'),
+         url('/font/OpenRunde-Regular.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
@@ -11,7 +11,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-family: 'OpenRunde';
+    font-family: 'OpenRunde', 'Times New Roman', Times, serif;
     background: #B2C9AD;
     color: #111;
     margin: 0;
