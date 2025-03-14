@@ -1,3 +1,6 @@
+html {
+    height: 100%;
+}
 body {
     background: linear-gradient(135deg, #FFF3E0, #FFD180);;
     color: #333;
@@ -130,4 +133,14 @@ a {
 a:hover {
     text-decoration: underline;
     color: #e74c3c;
+}
+
+.home {
+    border-radius: 12px;
+    font-size: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    padding-bottom: 5px;
+    padding-top: 5px;
 }
