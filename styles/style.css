@@ -15,6 +15,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    flex-direction: column;
 }
 
 .container {
@@ -26,9 +27,6 @@ body {
     max-width: 1000px;
 }
 
-nav, aside {
-    flex: 1;
-}
 
 main {
     flex: 2;
@@ -39,11 +37,12 @@ main {
     max-width: 250px;
 }
 
-.image-section .headline {
+.headline {
     font-size: 2rem;
     font-weight: bold;
     margin-top: 10px;
     color: #D3543C;
+    margin-bottom: 20px;
 }
 
 /* Links */
@@ -61,6 +60,7 @@ a:hover {
 /* Navigation and Aside */
 nav, aside {
     padding: 15px;
+    flex: 1;
 }
 
 ul {
