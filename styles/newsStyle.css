@@ -2,8 +2,11 @@ html {
     height: 100%;
 }
 body {
-    background: #FFD180;
+    background: linear-gradient(135deg, #FFF3E0, #FFD180);
     color: #333;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 h1 {
