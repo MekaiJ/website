@@ -29,5 +29,30 @@
             </ul>
         </aside>
     </div>
+    <div id="weather">
+
+    </div>
+    <script>
+        //get the weather in my area
+        const div = document.createElement("div");
+        document.body.appendChild(div);
+
+        async function getWeather() {
+        const url = `https://wttr.in/Spokane,WA?format=j1`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const currentTemp = data.current_condition[0].temp_F;
+            const weatherDesc = data.current_condition[0].weatherDesc[0].value;
+
+            div.textContent = `Current weather in my area: ${currentTemp}°F, ${weatherDesc}`;
+        } catch (error) {
+            div.textContent = "Failed to fetch weather data.";
+            console.error("Error fetching weather:", error);
+        }
+    }
+    getWeather();
+    </script>
 </body>
 </html>
