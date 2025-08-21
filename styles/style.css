@@ -81,6 +81,10 @@ body {
     color: #4E342E;
 }
 
+#contact {
+    padding-top: 4%;
+}
+
 /* Adjustments for mobile screens */
 @media (max-width: 768px) {
     .container {
