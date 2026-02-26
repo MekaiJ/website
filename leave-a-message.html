@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>guestbook</title>
+  <style>
+    body {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 13px;
+      background: #ffffff;
+      color: #000000;
+      margin: 20px auto;
+      max-width: 600px;
+      padding: 0 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: bold;
+      margin: 0 0 8px 0;
+    }
+
+    a { color: #0000ee; }
+    a:visited { color: #551a8b; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #cccccc;
+      margin: 14px 0;
+    }
+
+    .subtitle {
+      color: #555;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    /* form */
+    .form-section { margin-bottom: 10px; }
+
+    label {
+      display: block;
+      margin-bottom: 2px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    input[type="text"], textarea {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 12px;
+      border: 1px solid #999;
+      padding: 3px 4px;
+      width: 100%;
+      background: #fff;
+      color: #000;
+      box-sizing: border-box;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] { height: 24px; }
+    textarea { height: 70px; resize: vertical; }
+
+    input[type="submit"] {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 12px;
+      background: #ececec;
+      border: 1px solid #999;
+      padding: 3px 12px;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover { background: #ddd; }
+
+    .status {
+      font-size: 12px;
+      color: #006600;
+      margin-top: 5px;
+    }
+
+    .status.error { color: #cc0000; }
+
+    /* toggle link */
+    .toggle-link {
+      font-size: 12px;
+      cursor: pointer;
+      color: #0000ee;
+      text-decoration: underline;
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: Verdana, Geneva, sans-serif;
+    }
+
+    /* entries */
+    .entry {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px dotted #ccc;
+    }
+
+    .entry:last-child { border-bottom: none; }
+
+    .entry-name {
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    .entry-date {
+      font-size: 11px;
+      color: #666;
+      margin-left: 6px;
+    }
+
+    .entry-msg {
+      margin-top: 4px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .empty { color: #666; font-style: italic; font-size: 12px; }
+    .loading { color: #666; font-size: 12px; }
+
+    .config-notice {
+      background: #fffbe6;
+      border: 1px solid #e6c800;
+      padding: 6px 8px;
+      font-size: 11px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .entry-count { font-size: 12px; color: #555; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>guestbook</h1>
+  <p class="subtitle">sign my guestbook! i read all of these.</p>
+  <hr>
+
+  <!-- sign the guestbook -->
+  <p>
+    <button class="toggle-link" id="toggleBtn" onclick="toggleForm()">&#x25BC; sign the guestbook</button>
+  </p>
+
+  <div id="formWrap" style="margin-top:8px;">
+    <div class="form-section">
+      <label for="name">name:</label>
+      <input type="text" id="name" maxlength="80" autocomplete="off" placeholder="your name"/>
+
+      <label for="message">message:</label>
+      <textarea id="message" maxlength="500" placeholder="say hi!"></textarea>
+
+      <input type="submit" value="submit" onclick="submitMessage()"/>
+      <p class="status" id="status"></p>
+    </div>
+  </div>
+
+  <hr>
+
+  <p class="entry-count" id="entryCount"></p>
+  <div id="entries"><p class="loading">loading entries...</p></div>
+
+  <hr>
+  <p style="font-size:11px; color:#999; text-align:center;">
+    &copy; my site &mdash; <a href="#">back to home</a>
+  </p>
+
+  <script>
+    // ─────────────────────────────────────────────
+    //   REPLACE THESE WITH YOUR SUPABASE DETAILS
+    // ─────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://rslapntfoxxlfzywwidv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzbGFwbnRmb3h4bGZ6eXd3aWR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIxMzk4NTksImV4cCI6MjA4NzcxNTg1OX0.EcWnmNjVmSmZIYlJGzq6ONGaQryUIl8GbLrSUS4VN-k';
+    const TABLE_NAME        = 'Message';
+    // ─────────────────────────────────────────────
+
+    const isConfigured = !SUPABASE_URL.includes('YOUR_');
+    if (isConfigured) document.getElementById('configNotice').style.display = 'none';
+
+    let formVisible = true;
+
+    function toggleForm() {
+      formVisible = !formVisible;
+      document.getElementById('formWrap').style.display = formVisible ? 'block' : 'none';
+      document.getElementById('toggleBtn').textContent =
+        (formVisible ? '▼' : '▶') + ' sign the guestbook';
+    }
+
+    const api = (path, opts = {}) =>
+      fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+          ...opts.headers,
+        },
+        ...opts,
+      });
+
+    async function loadEntries() {
+      const wrap  = document.getElementById('entries');
+      const count = document.getElementById('entryCount');
+
+      try {
+        const res  = await api(`${TABLE_NAME}?select=*&order=created_at.desc&limit=50`);
+        const data = await res.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          wrap.innerHTML = '<p class="empty">no entries yet — be the first!</p>';
+          count.textContent = '';
+          return;
+        }
+
+        count.textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'}`;
+
+        wrap.innerHTML = data.map(e => `
+          <div class="entry">
+            <span class="entry-name">${esc(e.name)}</span>
+            <span class="entry-date">${fmt(e.created_at)}</span>
+            <p class="entry-msg">${esc(e.message)}</p>
+          </div>
+        `).join('');
+
+      } catch {
+        wrap.innerHTML = '<p class="empty">could not load entries. check your supabase config.</p>';
+      }
+    }
+
+    async function submitMessage() {
+      const name    = document.getElementById('name').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const statusEl = document.getElementById('status');
+
+      statusEl.className = 'status';
+
+      if (!name || !message) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'please fill in both fields.';
+        return;
+      }
+
+      if (!isConfigured) {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'supabase not configured yet.';
+        return;
+      }
+
+      statusEl.textContent = 'submitting...';
+
+      try {
+        const res = await api(TABLE_NAME, {
+          method: 'POST',
+          body: JSON.stringify({ name, message }),
+        });
+
+        if (res.ok || res.status === 201) {
+          statusEl.textContent = 'thanks for signing! :)';
+          document.getElementById('name').value = '';
+          document.getElementById('message').value = '';
+          await loadEntries();
+        } else {
+          const err = await res.json();
+          statusEl.className = 'status error';
+          statusEl.textContent = `error: ${err.message || 'something went wrong.'}`;
+        }
+      } catch {
+        statusEl.className = 'status error';
+        statusEl.textContent = 'network error. try again.';
+      }
+    }
+
+    function esc(s) {
+      return String(s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function fmt(iso) {
+      if (!iso) return '';
+      return new Date(iso).toLocaleDateString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+    }
+
+    loadEntries();
+  </script>
+</body>
+</html>
