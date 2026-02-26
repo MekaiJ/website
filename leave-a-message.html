@@ -249,11 +249,6 @@
         return;
       }
 
-      if (!isConfigured) {
-        statusEl.className = 'status error';
-        statusEl.textContent = 'supabase not configured yet.';
-        return;
-      }
 
       statusEl.textContent = 'submitting...';
 
